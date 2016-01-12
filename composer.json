@@ -1,0 +1,29 @@
+{
+    "name": "timgws/laravel-pjax",
+    "homepage": "https://github.com/timgws/laravel-pjax",
+    "description": "Laravel middleware for pjax. Use ajax and pushState to deliver a fast & seemless browsing experience",
+    "keywords": [ "ajax", "pjax", "pushstate", "jquery", "laravel", "request", "middleware" ],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tim Groeneveld",
+            "email": "tim@timg.ws",
+            "homepage": "http://timg.ws"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "timgws\\pjax\\": "src/",
+            "timgws\\test\\": "tests/"
+        }
+    },
+    "minimum-stability": "dev",
+    "require": {
+        "illuminate/http": "4.1 - 5.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "4.7.*@dev"
+    }
+}
+
