@@ -80,11 +80,6 @@ class Middleware
         /**
          * Create a new HTML document with only the extracted content
          */
-        $doc = new DOMDocument;
-        $doc->preserveWhiteSpace = false;
-        $doc->importNode($xpath_elements[0]);
-
-        // and return!
-        return $doc->loadHTML($doc);
+        return $d->saveHTML($xpath_elements[0]);
     }
 }
