@@ -6,6 +6,9 @@ class Middleware
 
     public function handle($request, Closure $next)
     {
+        // Get the initial URL that was requested
+        $initial_url = $request->getRequestUri();
+
         // Get the response
         $response = $next($request);
 
@@ -30,6 +33,12 @@ class Middleware
         $response->setContent(
             $this->getContent($response)
         );
+
+        // Check if the response was redirected. If it was, send X-PJAX-URL header
+        $current_url = $request->getRequestUri();
+        if ($current_url !== $initial_url) {
+            $response->header('X-PJAX-URL', $current_url);
+        }
 
         return $response;
     }
