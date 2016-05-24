@@ -45,10 +45,25 @@ Add the service provider:
 Publish the config file:
 
 ```bash
-# php artisan vendor:publish --provider="timgws\pjax\ServiceProvider" --tag="config"
+php artisan vendor:publish --provider="timgws\pjax\ServiceProvider" --tag="config"
 ```
 
 and test!
+
+## Limiting containers that can be requested
+One major difference between this module and other Laravel pjax middleware is that you can limit which containers can be requested via HTTP headers.
+
+You may wish to edit the `pjax.php` config file to limit `valid_containers`
+
+```php
+return [
+    'valid_containers' => [
+        '#pjax-container', '.content'
+    ]
+];
+```
+
+See https://github.com/defunkt/jquery-pjax#usage for further information.
 
 ## Contributors
 
