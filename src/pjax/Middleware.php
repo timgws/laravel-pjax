@@ -16,7 +16,7 @@ class Middleware
          * Don't bother handling the request with this middleware if it
          * is not a pjax request, or if the page is not a redirection.
          */
-        if (!$request->pjax() || $response->isRedirection()) {
+        if ($this->shouldReturnContent($request, $response)) {
             return $response;
         }
 

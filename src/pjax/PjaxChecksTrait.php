@@ -23,6 +23,11 @@ trait PjaxChecksTrait
         return $container;
     }
 
+    private function shouldReturnContent($request, $response)
+    {
+        return (!$request->pjax() || $response->isRedirection());
+    }
+
     private function getContainer($request)
     {
         /**
