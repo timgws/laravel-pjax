@@ -20,7 +20,7 @@ trait PjaxChecksTrait
          */
         $container = $request->header('X-PJAX-CONTAINER');
 
-        if (in_array($container, $valid_containers)) {
+        if (empty($valid_containers) || in_array($container, $valid_containers)) {
             $this->container = $container;
 
             try {
