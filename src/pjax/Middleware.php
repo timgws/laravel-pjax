@@ -45,7 +45,7 @@ class Middleware
             $response->header('X-PJAX-Version', $current_version);
         }
 
-        return $next($request);
+        return $response;
     }
 
     /**
