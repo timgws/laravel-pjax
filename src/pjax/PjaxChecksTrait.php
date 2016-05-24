@@ -38,6 +38,22 @@ trait PjaxChecksTrait
     }
 
     /**
+     * Send the Pjax Layout Version if it has been set in the config file.
+     *
+     * @param $reponse
+     */
+    private function setPjaxLayoutVersion($response)
+    {
+        $current_version = config('pjax.layout_version');
+
+        if (!empty($current_version)) {
+            $response->header('X-PJAX-Version', $current_version);
+        }
+
+        return $response;
+    }
+
+    /**
      * Convert a class/id to a valid xpath
      *
      * @throws XPathException

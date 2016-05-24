@@ -40,10 +40,8 @@ class Middleware
             $response->header('X-PJAX-URL', $current_url);
         }
 
-        $current_version = config('pjax.layout_version');
-        if (!empty($current_version)) {
-            $response->header('X-PJAX-Version', $current_version);
-        }
+        // Send the PJAX layout version if it has been set in the config file
+        $response = $this->setPjaxLayoutVersion($response);
 
         return $response;
     }
