@@ -27,6 +27,11 @@ class Middleware
             return $this->invalidRequest();
         }
 
+        return $this->replaceContent($request, $response, $initial_url);
+    }
+
+    private function replaceContent($request, $response, $initial_url)
+    {
         /**
          * Replace the full HTML content with the extracted pjax-only content
          */
@@ -41,9 +46,7 @@ class Middleware
         }
 
         // Send the PJAX layout version if it has been set in the config file
-        $response = $this->setPjaxLayoutVersion($response);
-
-        return $response;
+        return $this->setPjaxLayoutVersion($response);
     }
 
     /**

@@ -10,31 +10,41 @@ trait PjaxChecksTrait
 
     private function isValidPjaxRequest($request)
     {
+        /** @var string|bool $container will be false if container is not valid */
+        $container = $this->getContainer($request);
+
+        if ($container !== false) {
+            $this->container = $container;
+            $this->container_xpath = $this->convertClass($container);
+
+            return true;
+        }
+
+        return $container;
+    }
+
+    private function getContainer($request)
+    {
+        /**
+         * Get the one from the header, check that it is in the config.
+         */
+        $container = $this->getContainer($request);
+
         /**
          * Valid containers from the configuration.
          */
         $valid_containers = config('pjax.valid_containers');
 
-        /**
-         * Get the one from the header, check that it is in the config.
-         */
-        $container = $request->header('X-PJAX-CONTAINER');
-
         if (empty($valid_containers) || in_array($container, $valid_containers)) {
-            $this->container = $container;
-
-            try {
-                $xpath = $this->convertClass($container);
-                $this->container_xpath = $xpath;
-            } catch (XPathException $xp) {
-                return false;
-            }
-
-            return true;
+            return $container;
         }
 
-
         return false;
+    }
+
+    private function getContainer($request)
+    {
+        return $request->header('X-PJAX-CONTAINER');
     }
 
     /**
