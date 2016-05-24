@@ -98,5 +98,4 @@ See https://github.com/defunkt/jquery-pjax#usage for further information.
 * MIT License (see [LICENSE](https://github.com/timgws/laravel-pjax/blob/master/LICENSE.md) file)
 
 ## TODO
-* Support layout versions
-* Build test suitelaravel-pjax
+* Build test suite
