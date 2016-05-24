@@ -40,7 +40,12 @@ class Middleware
             $response->header('X-PJAX-URL', $current_url);
         }
 
-        return $response;
+        $current_version = config('pjax.layout_version');
+        if (!empty($current_version)) {
+            $response->header('X-PJAX-Version', $current_version);
+        }
+
+        return $next($request);
     }
 
     /**

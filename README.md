@@ -51,7 +51,8 @@ php artisan vendor:publish --provider="timgws\pjax\ServiceProvider" --tag="confi
 and test!
 
 ## Limiting containers that can be requested
-One major difference between this module and other Laravel pjax middleware is that you can limit which containers can be requested via HTTP headers.
+One major difference between this module and other Laravel pjax middleware is that you
+can limit which containers can be requested via HTTP headers.
 
 You may wish to edit the `pjax.php` config file to limit `valid_containers`
 
@@ -61,6 +62,29 @@ return [
         '#pjax-container', '.content'
     ]
 ];
+```
+
+See https://github.com/defunkt/jquery-pjax#usage for further information.
+
+## Force reload of page when version changes
+
+Inside config.php, set the layout version to force a hard reload of the requested page
+when a client is on an old version of the layout.
+
+Bumping the version will force clients to do a full reload the next
+request getting the new layout and assets
+
+Set the version to something like 'v1'. Also, you will need to add
+a meta tag like this to the base layout:
+
+```html
+      <meta http-equiv="x-pjax-version" content="v1">
+```
+
+```php
+      return [
+          'layout_version' => 'v1'
+      ];
 ```
 
 See https://github.com/defunkt/jquery-pjax#usage for further information.
