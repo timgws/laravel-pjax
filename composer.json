@@ -14,7 +14,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "timgws\\pjax\\": "src/",
+            "timgws\\pjax\\": "src/pjax/",
             "timgws\\test\\": "tests/"
         }
     },

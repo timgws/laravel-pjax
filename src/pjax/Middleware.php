@@ -1,9 +1,18 @@
 <?php namespace timgws\pjax;
 
+use \Closure;
+
 class Middleware
 {
     use PjaxChecksTrait;
 
+    /**
+     * Handle the incoming request
+     *
+     * @param $request
+     * @param Closure $next
+     * @return \Illuminate\Http\Response|void
+     */
     public function handle($request, Closure $next)
     {
         // Get the initial URL that was requested
@@ -30,6 +39,14 @@ class Middleware
         return $this->replaceContent($request, $response, $initial_url);
     }
 
+    /**
+     * Extract the HTML from the container that has been updated.
+     *
+     * @param $request
+     * @param $response
+     * @param $initial_url
+     * @return \Illuminate\Http\Response
+     */
     private function replaceContent($request, $response, $initial_url)
     {
         /**

@@ -1,6 +1,7 @@
 <?php namespace timgws\pjax;
 
 
+use Illuminate\Http\Response;
 use timgws\pjax\Exceptions\XPathException;
 
 trait PjaxChecksTrait
@@ -8,6 +9,12 @@ trait PjaxChecksTrait
     private $container = null;
     private $container_xpath = null;
 
+    /**
+     * Return if the PJAX request is valid
+     * @param $request
+     * @return bool
+     * @throws XPathException
+     */
     private function isValidPjaxRequest($request)
     {
         /** @var string|bool $container will be false if container is not valid */
@@ -20,9 +27,16 @@ trait PjaxChecksTrait
             return true;
         }
 
-        return $container;
+        return false;
     }
 
+    /**
+     * Determine if PJAX middleware should intercept this request.
+     *
+     * @param $request
+     * @param $response
+     * @return bool
+     */
     private function shouldReturnContent($request, $response)
     {
         return (!$request->pjax() || $response->isRedirection());
@@ -33,7 +47,7 @@ trait PjaxChecksTrait
         /**
          * Get the one from the header, check that it is in the config.
          */
-        $container = $this->getContainer($request);
+        $container = $this->getContainerString($request);
 
         /**
          * Valid containers from the configuration.
@@ -47,7 +61,13 @@ trait PjaxChecksTrait
         return false;
     }
 
-    private function getContainer($request)
+    /**
+     * Get the requested container string from the HTTP header.
+     *
+     * @param $request
+     * @return mixed
+     */
+    private function getContainerString($request)
     {
         return $request->header('X-PJAX-CONTAINER');
     }
@@ -55,7 +75,8 @@ trait PjaxChecksTrait
     /**
      * Send the Pjax Layout Version if it has been set in the config file.
      *
-     * @param $reponse
+     * @param $response
+     * @return Response
      */
     private function setPjaxLayoutVersion($response)
     {
