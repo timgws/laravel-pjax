@@ -22,7 +22,20 @@ class Middleware
         // Get the response
         $response = $next($request);
 
-        /*
+        return $this->createResponse($request, $response, $initial_url);
+    }
+
+    /**
+     * Return the response that should be created by the middleware
+     *
+     * @param $request
+     * @param $response
+     * @param $initial_url
+     * @return Response|void
+     */
+    private function createResponse($request, $response, $initial_url)
+    {
+        /**
          * Don't bother handling the request with this middleware if it
          * is not a pjax request, or if the page is not a redirection.
          */
