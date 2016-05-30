@@ -88,20 +88,11 @@ class Middleware
         // Get the full response
         $content = $response->getContent();
 
-        // enable libxml internal errors, avoid php dying on invalid tags
-        $use_errors_old_value = libxml_use_internal_errors(true);
+        // Get the XML document
+        $document = $this->getDocument($content);
 
-        // Import the response into a DOMDocument, extract the pjax response
-        $d = new \DOMDocument();
-        $d->loadHTML($this->blankHTML() . $content);
-        libxml_clear_errors();
-
-        // get the element with the provided container name
-        $xpath = new \DOMXPath($d);
-        $xpath_elements = $xpath->query($this->container_xpath);
-
-        // set libxml internal errors to it's previous value
-        libxml_use_internal_errors($use_errors_old_value);
+        // Get the XPath elements
+        $xpath_elements = $this->getDocumentElements($document);
 
         /**
          * Ensure that the pjax response could be extracted, and that there is not > 1 item
@@ -113,11 +104,44 @@ class Middleware
         /**
          * Create a new HTML document with only the extracted content
          */
-        return $d->saveHTML($xpath_elements[0]);
+        return $document->saveHTML($xpath_elements[0]);
     }
 
     private function blankHTML()
     {
         return '<!DOCTYPE html><meta charset="utf-8"><meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
+    }
+
+    /**
+     * @param $content
+     * @return array
+     */
+    private function getDocument($content)
+    {
+        // enable libxml internal errors, avoid php dying on invalid tags
+        $use_errors_old_value = libxml_use_internal_errors(true);
+
+        // Import the response into a DOMDocument, extract the pjax response
+        $document = new \DOMDocument();
+        $document->loadHTML($this->blankHTML() . $content);
+        libxml_clear_errors();
+
+        // set libxml internal errors to it's previous value
+        libxml_use_internal_errors($use_errors_old_value);
+
+        return $document;
+    }
+
+    /**
+     * get the elements with the provided container name
+     *
+     * @param $document
+     * @return \DOMNodeList
+     */
+    private function getDocumentElements($document)
+    {
+        $xpath = new \DOMXPath($document);
+        $xpath_elements = $xpath->query($this->container_xpath);
+        return $xpath_elements;
     }
 }
