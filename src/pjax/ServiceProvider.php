@@ -12,7 +12,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     {
         $this->publishes([
             __DIR__.'/config/pjax.php' => config_path('pjax.php'),
-        ]);
+        ], 'config');
     }
 
     /**

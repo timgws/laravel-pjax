@@ -1,5 +1,6 @@
 <?php namespace timgws\pjax;
 
+use \Illuminate\Http\Response;
 use \Closure;
 
 class Middleware
@@ -69,7 +70,7 @@ class Middleware
     /**
      * Return a 409 (Conflict) error code.
      *
-     * This is returned when an expection is not met, such as a valid container.
+     * This is returned when an expectation is not met, such as a valid container.
      */
     private function invalidRequest()
     {
@@ -87,16 +88,25 @@ class Middleware
         // Get the full response
         $content = $response->getContent();
 
+        // enable libxml internal errors, avoid php dying on invalid tags
+        $use_errors_old_value = libxml_use_internal_errors(true);
+
         // Import the response into a DOMDocument, extract the pjax response
-        $d = new DOMDocument();
-        $d->loadHTML($content);
-        $xpath = new DOMXPath($d);
+        $d = new \DOMDocument();
+        $d->loadHTML($this->blankHTML() . $content);
+        libxml_clear_errors();
+
+        // get the element with the provided container name
+        $xpath = new \DOMXPath($d);
         $xpath_elements = $xpath->query($this->container_xpath);
+
+        // set libxml internal errors to it's previous value
+        libxml_use_internal_errors($use_errors_old_value);
 
         /**
          * Ensure that the pjax response could be extracted, and that there is not > 1 item
          */
-        if (is_null($xpath_elements) || $xpath_elements->length !== 0) {
+        if (is_null($xpath_elements) || $xpath_elements->length !== 1) {
             return $this->invalidRequest();
         }
 
@@ -104,5 +114,10 @@ class Middleware
          * Create a new HTML document with only the extracted content
          */
         return $d->saveHTML($xpath_elements[0]);
+    }
+
+    private function blankHTML()
+    {
+        return '<!DOCTYPE html><meta charset="utf-8"><meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
     }
 }
