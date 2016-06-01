@@ -116,19 +116,7 @@ class Middleware
          * Ensure that the pjax response could be extracted, and that there is not > 1 item
          */
         if (is_null($xpath_elements) || $xpath_elements->length !== 1) {
-            if ($this->debugMode()) {
-                $this->container_xpath = '//html';
-                $xpath_elements = $this->getDocumentElements($document);
-                $html = '';
-
-                foreach ($xpath_elements as $element) {
-                    $html .= $this->getInnerHTML($element);
-                }
-
-                return $html;
-            }
-
-            return $this->invalidRequest();
+            return $this->htmlForElementsNotMatching($document);
         }
 
         /**
@@ -174,6 +162,27 @@ class Middleware
         $xpath_elements = $xpath->query($this->container_xpath);
 
         return $xpath_elements;
+    }
+
+    /**
+     * @param $document
+     * @return string|void
+     */
+    private function htmlForElementsNotMatching($document)
+    {
+        if ($this->debugMode()) {
+            $this->container_xpath = '//html';
+            $xpath_elements = $this->getDocumentElements($document);
+            $html = '';
+
+            foreach ($xpath_elements as $element) {
+                $html .= $this->getInnerHTML($element);
+            }
+
+            return $html;
+        }
+
+        return $this->invalidRequest();
     }
 
     /**
