@@ -24,6 +24,12 @@ return [
     //
     //      <meta http-equiv="x-pjax-version" content="v123">
     //
-    //'layout_version' => 'v1'
+    //'layout_version' => 'v1',
+
+    //
+    // Setting debug to true will ensure that errors are outputted, even
+    // though the output does not match!
+    //
+    'debug' => true
 
 ];

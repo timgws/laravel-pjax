@@ -90,6 +90,11 @@ class Middleware
         return abort(409);
     }
 
+    private function debugMode()
+    {
+        return config('pjax.debug') === true;
+    }
+
     /**
      * Get only the content we care about
      *
@@ -111,13 +116,25 @@ class Middleware
          * Ensure that the pjax response could be extracted, and that there is not > 1 item
          */
         if (is_null($xpath_elements) || $xpath_elements->length !== 1) {
+            if ($this->debugMode()) {
+                $this->container_xpath = '//html';
+                $xpath_elements = $this->getDocumentElements($document);
+                $html = '';
+
+                foreach ($xpath_elements as $element) {
+                    $html .= $this->getInnerHTML($element);
+                }
+
+                return $html;
+            }
+
             return $this->invalidRequest();
         }
 
         /**
          * Create a new HTML document with only the extracted content
          */
-        return $document->saveHTML($xpath_elements[0]);
+        return $this->getInnerHTML($xpath_elements[0]);
     }
 
     private function blankHTML()
@@ -155,6 +172,25 @@ class Middleware
     {
         $xpath = new \DOMXPath($document);
         $xpath_elements = $xpath->query($this->container_xpath);
+
         return $xpath_elements;
+    }
+
+    /**
+     * @param $element
+     * @return string
+     */
+    private function getInnerHTML($element)
+    {
+        $children = $element->childNodes;
+        $innerHTML = '';
+
+        foreach ($children as $child) {
+            $tmp_doc = new \DOMDocument();
+            $tmp_doc->appendChild($tmp_doc->importNode($child, true));
+            $innerHTML .= $tmp_doc->saveHTML();
+        }
+
+        return $innerHTML;
     }
 }

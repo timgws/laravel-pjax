@@ -25,6 +25,10 @@ trait PjaxChecksTrait
             $this->container_xpath = $this->convertClass($container);
 
             return true;
+        } elseif ($this->debugMode()) {
+            $this->container = "//*";
+            $this->container_xpath = "//*";
+            return true;
         }
 
         return false;

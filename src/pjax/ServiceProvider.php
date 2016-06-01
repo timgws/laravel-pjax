@@ -1,5 +1,6 @@
-<?php namespace timgws\pjax;
+<?php
 
+namespace timgws\pjax;
 
 class ServiceProvider extends \Illuminate\Support\ServiceProvider
 {
