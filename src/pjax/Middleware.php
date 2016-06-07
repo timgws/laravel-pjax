@@ -1,5 +1,6 @@
 <?php namespace timgws\pjax;
 
+use Illuminate\Http\Request;
 use \Illuminate\Http\Response;
 use \Closure;
 
@@ -20,6 +21,7 @@ class Middleware
         $initial_url = $request->getRequestUri();
 
         // Get the response
+        /** @var Response $response */
         $response = $next($request);
 
         return $this->createResponse($request, $response, $initial_url);
@@ -29,7 +31,7 @@ class Middleware
      * Return the response that should be created by the middleware
      *
      * @param $request
-     * @param $response
+     * @param Response $response
      * @param $initial_url
      * @return Response|void
      */
@@ -56,8 +58,8 @@ class Middleware
     /**
      * Extract the HTML from the container that has been updated.
      *
-     * @param $request
-     * @param $response
+     * @param Request $request
+     * @param Response $response
      * @param $initial_url
      * @return \Illuminate\Http\Response
      */
@@ -72,7 +74,10 @@ class Middleware
 
         // Check if the response was redirected. If it was, send X-PJAX-URL header
         $current_url = $request->getRequestUri();
-        if ($current_url !== $initial_url) {
+        if ($response->isRedirection()) {
+            $newUrl = $response->headers->get('Location');
+            $response->header('X-PJAX-URL', $newUrl);
+        } elseif ($current_url !== $initial_url) {
             $response->header('X-PJAX-URL', $current_url);
         }
 
@@ -90,6 +95,11 @@ class Middleware
         return abort(409);
     }
 
+    /**
+     * Check if the configuration has debug mode enabled
+     *
+     * @return bool
+     */
     private function debugMode()
     {
         return config('pjax.debug') === true;
@@ -109,8 +119,31 @@ class Middleware
         // Get the XML document
         $document = $this->getDocument($content);
 
+        /**
+         * Create a new HTML document with only the extracted content
+         */
+        return $this->getTitle($document) . $this->getNewDocumentContent($document);
+    }
+
+    private function getTitle($document)
+    {
+        $xpath_titles = $this->getDocumentElements($document, '//title');
+
+        if ($xpath_titles->length > 0) {
+            return '<title>' . trim($this->getInnerHTML($xpath_titles[0])) . '</title>';
+        }
+
+        return '';
+    }
+
+    /**
+     * @param $document
+     * @return string|void
+     */
+    private function getNewDocumentContent($document)
+    {
         // Get the XPath elements
-        $xpath_elements = $this->getDocumentElements($document);
+        $xpath_elements = $this->getDocumentElements($document, $this->container_xpath);
 
         /**
          * Ensure that the pjax response could be extracted, and that there is not > 1 item
@@ -119,15 +152,13 @@ class Middleware
             return $this->htmlForElementsNotMatching($document);
         }
 
-        /**
-         * Create a new HTML document with only the extracted content
-         */
         return $this->getInnerHTML($xpath_elements[0]);
     }
 
     private function blankHTML()
     {
-        return '<!DOCTYPE html><meta charset="utf-8"><meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
+        return '<!DOCTYPE html><meta charset="utf-8">' .
+                '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
     }
 
     /**
@@ -156,10 +187,10 @@ class Middleware
      * @param $document
      * @return \DOMNodeList
      */
-    private function getDocumentElements($document)
+    private function getDocumentElements($document, $xpath)
     {
-        $xpath = new \DOMXPath($document);
-        $xpath_elements = $xpath->query($this->container_xpath);
+        $xpath_query = new \DOMXPath($document);
+        $xpath_elements = $xpath_query->query($xpath);
 
         return $xpath_elements;
     }
@@ -171,8 +202,7 @@ class Middleware
     private function htmlForElementsNotMatching($document)
     {
         if ($this->debugMode()) {
-            $this->container_xpath = '//html';
-            $xpath_elements = $this->getDocumentElements($document);
+            $xpath_elements = $this->getDocumentElements($document, '//html');
             $html = '';
 
             foreach ($xpath_elements as $element) {
